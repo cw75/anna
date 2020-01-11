@@ -62,8 +62,8 @@ ServerThreadList HashRingUtil::get_responsible_threads(
 
       succeed = true;
     }
-    return result;
     std::cout << "exit get responsible thread\n";
+    return result;
   }
 }
 
