@@ -103,37 +103,47 @@ void run(unsigned thread_id, Address ip, vector<Address> monitoring_ips) {
 
     // only relavant for the seed node
     if (pollitems[0].revents & ZMQ_POLLIN) {
+      std::cout << "thread " << std::to_string(thread_id) << " enter seed handler\n";
       kZmqUtil->recv_string(&addr_responder);
       auto serialized = seed_handler(log, global_hash_rings);
       kZmqUtil->send_string(serialized, &addr_responder);
+      std::cout << "thread " << std::to_string(thread_id) << " exit seed handler\n";
     }
 
     // handle a join or depart event coming from the server side
     if (pollitems[1].revents & ZMQ_POLLIN) {
+      std::cout << "thread " << std::to_string(thread_id) << " enter membership handler\n";
       string serialized = kZmqUtil->recv_string(&notify_puller);
       membership_handler(log, serialized, pushers, global_hash_rings, thread_id,
                          ip);
+      std::cout << "thread " << std::to_string(thread_id) << " exit membership handler\n";
     }
 
     // received replication factor response
     if (pollitems[2].revents & ZMQ_POLLIN) {
+      std::cout << "thread " << std::to_string(thread_id) << " enter replication response handler\n";
       string serialized = kZmqUtil->recv_string(&replication_response_puller);
       replication_response_handler(log, serialized, pushers, rt,
                                    global_hash_rings, local_hash_rings,
                                    key_replication_map, pending_requests, seed);
+      std::cout << "thread " << std::to_string(thread_id) << " exit replication response handler\n";
     }
 
     if (pollitems[3].revents & ZMQ_POLLIN) {
+      std::cout << "thread " << std::to_string(thread_id) << " enter replication change handler\n";
       string serialized = kZmqUtil->recv_string(&replication_change_puller);
       replication_change_handler(log, serialized, pushers, key_replication_map,
                                  thread_id, ip);
+      std::cout << "thread " << std::to_string(thread_id) << " exit replication change handler\n";
     }
 
     if (pollitems[4].revents & ZMQ_POLLIN) {
+      std::cout << "thread " << std::to_string(thread_id) << " enter address handler\n";
       string serialized = kZmqUtil->recv_string(&key_address_puller);
       address_handler(log, serialized, pushers, rt, global_hash_rings,
                       local_hash_rings, key_replication_map, pending_requests,
                       seed);
+      std::cout << "thread " << std::to_string(thread_id) << " exit address handler\n";
     }
   }
 }
