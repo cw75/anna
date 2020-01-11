@@ -25,11 +25,15 @@ ServerThreadList HashRingUtil::get_responsible_threads(
     GlobalRingMap &global_hash_rings, LocalRingMap &local_hash_rings,
     map<Key, KeyReplication> &key_replication_map, SocketCache &pushers,
     const vector<Tier> &tiers, bool &succeed, unsigned &seed) {
+  std::cout << "enter get responsible thread\n";
   if (metadata) {
+    std::cout << "is metadata\n";
     succeed = true;
     return kHashRingUtil->get_responsible_threads_metadata(
         key, global_hash_rings[Tier::MEMORY], local_hash_rings[Tier::MEMORY]);
+    std::cout << "exit get responsible thread\n";
   } else {
+    std::cout << "not metadata\n";
     ServerThreadList result;
 
     if (key_replication_map.find(key) == key_replication_map.end()) {
@@ -59,6 +63,7 @@ ServerThreadList HashRingUtil::get_responsible_threads(
       succeed = true;
     }
     return result;
+    std::cout << "exit get responsible thread\n";
   }
 }
 
