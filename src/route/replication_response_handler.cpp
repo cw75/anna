@@ -26,10 +26,12 @@ void replication_response_handler(
   KeyTuple tuple = response.tuples(0);
 
   Key key = get_key_from_metadata(tuple.key());
+  std::cout << "got replication response for key " << key << "\n";
 
   AnnaError error = tuple.error();
 
   if (error == AnnaError::NO_ERROR) {
+    std::cout << "no error";
     LWWValue lww_value;
     lww_value.ParseFromString(tuple.payload());
     ReplicationFactor rep_data;
@@ -44,10 +46,12 @@ void replication_response_handler(
       key_replication_map[key].local_replication_[local.tier()] = local.value();
     }
   } else if (error == AnnaError::KEY_DNE) {
+    std::cout << "key dne";
     // this means that the receiving thread was responsible for the metadata
     // but didn't have any values stored -- we use the default rep factor
     init_replication(key_replication_map, key);
   } else if (error == AnnaError::WRONG_THREAD) {
+    std::cout << "wrong thread";
     // this means that the node that received the rep factor request was not
     // responsible for that metadata
     auto respond_address = rt.replication_response_connect_address();

@@ -34,6 +34,7 @@ void address_handler(logger log, string &serialized, SocketCache &pushers,
 
   bool respond = false;
   if (num_servers == 0) {
+    std::cout << "error: no server\n";
     addr_response.set_error(AnnaError::NO_SERVERS);
 
     for (const Key &key : addr_request.keys()) {
@@ -45,7 +46,7 @@ void address_handler(logger log, string &serialized, SocketCache &pushers,
   } else { // if there are servers, attempt to return the correct threads
     for (const Key &key : addr_request.keys()) {
       ServerThreadList threads = {};
-
+      std::cout << "got address request for key " << key << "\n";
       for (const Tier &tier : kAllTiers) {
         threads = kHashRingUtil->get_responsible_threads(
             rt.replication_response_connect_address(), key, is_metadata(key),
@@ -58,6 +59,7 @@ void address_handler(logger log, string &serialized, SocketCache &pushers,
 
         if (!succeed) { // this means we don't have the replication factor for
                         // the key
+          std::cout << "no replication factor for key " << key << "\n";
           pending_requests[key].push_back(std::pair<Address, string>(
               addr_request.response_address(), addr_request.request_id()));
           return;
