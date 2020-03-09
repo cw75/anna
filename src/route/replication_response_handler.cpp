@@ -67,7 +67,7 @@ void replication_response_handler(
 
   // process pending key address requests
   if (pending_requests.find(key) != pending_requests.end()) {
-    log->info("found pending request");
+    log->info("found pending request, size is {}", pending_requests[key].size());
     bool succeed;
     ServerThreadList threads = {};
 
@@ -86,6 +86,8 @@ void replication_response_handler(
         return;
       }
     }
+
+    log->info("enter loop");
 
     for (const auto &pending_key_req : pending_requests[key]) {
       KeyAddressResponse key_res;
