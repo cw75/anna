@@ -30,6 +30,7 @@ void replication_response_handler(
   // replication factor request
   KeyTuple tuple = response.tuples(0);
   Key key = get_key_from_metadata(tuple.key());
+  log->info("key is {}", key);
 
   AnnaError error = tuple.error();
 
