@@ -33,6 +33,8 @@ from anna.zmq_util import (
     SocketCache
 )
 
+logging.basicConfig(filename='log_client.txt', level=logging.INFO,
+                    format='%(asctime)s %(message)s')
 
 class AnnaTcpClient(BaseAnnaClient):
     def __init__(self, elb_addr, ip, local=False, offset=0):
