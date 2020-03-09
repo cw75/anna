@@ -72,16 +72,20 @@ void replication_response_handler(
     ServerThreadList threads = {};
 
     for (const Tier &tier : kAllTiers) {
+      log->info("tier is {}", tier);
+      log->info("enter get responsible thread");
       threads = kHashRingUtil->get_responsible_threads(
           rt.replication_response_connect_address(), key, false,
           global_hash_rings, local_hash_rings, key_replication_map, pushers,
           {tier}, succeed, seed);
+      log->info("exit get responsible thread");
 
       if (threads.size() > 0) {
         break;
       }
 
       if (!succeed) {
+        log->info("unsuccessful");
         log->error("Missing replication factor for key {}.", key);
         return;
       }
