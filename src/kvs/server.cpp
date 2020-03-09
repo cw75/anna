@@ -344,6 +344,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
     }
 
     if (pollitems[3].revents & ZMQ_POLLIN) {
+      std::cout << "enter user request handler\n";
+      log->info("enter user request handler");
       auto work_start = std::chrono::system_clock::now();
 
       string serialized = kZmqUtil->recv_string(&request_puller);
@@ -359,9 +361,13 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
 
       working_time += time_elapsed;
       working_time_map[3] += time_elapsed;
+      std::cout << "exit user request handler\n";
+      log->info("exit user request handler");
     }
 
     if (pollitems[4].revents & ZMQ_POLLIN) {
+      std::cout << "enter gossip handler\n";
+      log->info("enter gossip handler");
       auto work_start = std::chrono::system_clock::now();
 
       string serialized = kZmqUtil->recv_string(&gossip_puller);
@@ -374,10 +380,14 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               .count();
       working_time += time_elapsed;
       working_time_map[4] += time_elapsed;
+      std::cout << "exit gossip handler\n";
+      log->info("exit gossip handler");
     }
 
     // receives replication factor response
     if (pollitems[5].revents & ZMQ_POLLIN) {
+      std::cout << "enter rep factor response handler\n";
+      log->info("enter rep factor response handler");
       auto work_start = std::chrono::system_clock::now();
 
       string serialized = kZmqUtil->recv_string(&replication_response_puller);
@@ -392,6 +402,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               .count();
       working_time += time_elapsed;
       working_time_map[5] += time_elapsed;
+      std::cout << "exit rep factor response handler\n";
+      log->info("exit rep factor response handler");
     }
 
     // receive replication factor change
@@ -413,6 +425,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
 
     // Receive cache IP lookup response.
     if (pollitems[7].revents & ZMQ_POLLIN) {
+      std::cout << "enter cache ip lookup handler\n";
+      log->info("enter cache ip lookup handler");
       auto work_start = std::chrono::system_clock::now();
 
       string serialized = kZmqUtil->recv_string(&cache_ip_response_puller);
@@ -423,6 +437,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               .count();
       working_time += time_elapsed;
       working_time_map[7] += time_elapsed;
+      std::cout << "exit cache ip lookup handler\n";
+      log->info("exit cache ip lookup handler");
     }
 
     // gossip updates to other threads
@@ -430,6 +446,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
     if (std::chrono::duration_cast<std::chrono::microseconds>(gossip_end -
                                                               gossip_start)
             .count() >= PERIOD) {
+      std::cout << "enter gossip\n";
+      log->info("enter gossip");
       auto work_start = std::chrono::system_clock::now();
       // only gossip if we have changes
       if (local_changeset.size() > 0) {
@@ -474,6 +492,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
 
       working_time += time_elapsed;
       working_time_map[8] += time_elapsed;
+      std::cout << "exit gossip\n";
+      log->info("exit gossip");
     }
 
     // Collect and store internal statistics,
@@ -485,6 +505,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                         .count();
 
     if (duration >= kServerReportThreshold) {
+      std::cout << "enter report\n";
+      log->info("enter report");
       epoch += 1;
       auto ts = generate_timestamp(wt.tid());
 
@@ -617,6 +639,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
       }
 
       report_start = std::chrono::system_clock::now();
+      std::cout << "exit report\n";
+      log->info("exit report");
 
       // Get the most recent list of cache IPs.
       // (Actually gets the list of all current function executor nodes.)
@@ -624,6 +648,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
       // Only do this if a management_ip is set -- i.e., we are not running in
       // local mode.
       if (management_ip != "NULL") {
+        std::cout << "enter cache update\n";
+        log->info("enter cache update");
         kZmqUtil->send_string("", &func_nodes_requester);
         // Get the response.
         StringSet func_nodes;
@@ -665,6 +691,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
           send_request<KeyRequest>(addr_request.second,
                                    pushers[addr_request.first]);
         }
+        std::cout << "exit cache update\n";
+        log->info("exit cache update");
       }
 
       // reset stats tracked in memory
