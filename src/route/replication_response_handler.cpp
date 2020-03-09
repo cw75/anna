@@ -26,10 +26,12 @@ void replication_response_handler(
   KeyTuple tuple = response.tuples(0);
 
   Key key = get_key_from_metadata(tuple.key());
+  log->info("key is {}", key);
 
   AnnaError error = tuple.error();
 
   if (error == AnnaError::NO_ERROR) {
+    log->info("no error");
     LWWValue lww_value;
     lww_value.ParseFromString(tuple.payload());
     ReplicationFactor rep_data;
@@ -44,10 +46,12 @@ void replication_response_handler(
       key_replication_map[key].local_replication_[local.tier()] = local.value();
     }
   } else if (error == AnnaError::KEY_DNE) {
+    log->info("dne");
     // this means that the receiving thread was responsible for the metadata
     // but didn't have any values stored -- we use the default rep factor
     init_replication(key_replication_map, key);
   } else if (error == AnnaError::WRONG_THREAD) {
+    log->info("wrong thread");
     // this means that the node that received the rep factor request was not
     // responsible for that metadata
     auto respond_address = rt.replication_response_connect_address();
@@ -63,6 +67,7 @@ void replication_response_handler(
 
   // process pending key address requests
   if (pending_requests.find(key) != pending_requests.end()) {
+    log->info("found pending request");
     bool succeed;
     ServerThreadList threads = {};
 
@@ -94,6 +99,7 @@ void replication_response_handler(
 
       string serialized;
       key_res.SerializeToString(&serialized);
+      log->info("sending response to {}", pending_key_req.first);
       kZmqUtil->send_string(serialized, &pushers[pending_key_req.first]);
     }
 

@@ -34,6 +34,7 @@ void address_handler(logger log, string &serialized, SocketCache &pushers,
 
   bool respond = false;
   if (num_servers == 0) {
+    log->info("no server");
     addr_response.set_error(AnnaError::NO_SERVERS);
 
     for (const Key &key : addr_request.keys()) {
@@ -44,6 +45,7 @@ void address_handler(logger log, string &serialized, SocketCache &pushers,
     respond = true;
   } else { // if there are servers, attempt to return the correct threads
     for (const Key &key : addr_request.keys()) {
+      log->info("requested key is {}", key);
       ServerThreadList threads = {};
 
       for (const Tier &tier : kAllTiers) {
@@ -58,6 +60,7 @@ void address_handler(logger log, string &serialized, SocketCache &pushers,
 
         if (!succeed) { // this means we don't have the replication factor for
                         // the key
+          log->info("no rep factor");
           pending_requests[key].push_back(std::pair<Address, string>(
               addr_request.response_address(), addr_request.request_id()));
           return;
