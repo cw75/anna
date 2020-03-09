@@ -14,6 +14,7 @@
 
 import random
 import socket
+import logging
 
 import zmq
 
@@ -49,7 +50,8 @@ class AnnaTcpClient(BaseAnnaClient):
         offset: A port numbering offset, which is only needed if multiple
         clients are running on the same machine
         '''
-
+        print('hello')
+        logging.info('hello')
         self.elb_addr = elb_addr
 
         if local:
@@ -162,7 +164,11 @@ class AnnaTcpClient(BaseAnnaClient):
         return kv_pairs
 
     def put(self, key, value):
+        print('getting worker address')
+        logging.info('getting worker address')
         worker_address = self._get_worker_address(key)
+        print('got worker address')
+        logging.info('got worker address')
 
         if not worker_address:
             return False
