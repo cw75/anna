@@ -14,9 +14,9 @@
 
 from anna.anna_pb2 import (
     # Anna's lattice types as an enum
-    LWW, SET, ORDERED_SET, SINGLE_CAUSAL, MULTI_CAUSAL, PRIORITY,
+    LWW, SET, ORDERED_SET, SINGLE_CAUSAL, MULTI_CAUSAL, PRIORITY, TOPK_PRIORITY,
     # Serialized representations of Anna's lattices
-    LWWValue, SetValue, SingleKeyCausalValue, MultiKeyCausalValue, PriorityValue
+    LWWValue, SetValue, SingleKeyCausalValue, MultiKeyCausalValue, PriorityValue, TopKPriorityValue
 )
 
 
@@ -490,7 +490,7 @@ class PriorityLattice(Lattice):
             value = bytes(value, 'utf-8')
             
         if type(value) != tuple or type(value[0]) != float or type(value[1]) != bytes:
-            raise ValueError('PriorityLattice must be a double-bytes pair.')
+            raise ValueError('PriorityLattice must be a float-bytes pair.')
 
         self.priority = value[0]
         self.value = value[1]
@@ -507,3 +507,42 @@ class PriorityLattice(Lattice):
         res.value = self.value
         
         return res, PRIORITY
+
+class TopKPriorityLattice(Lattice):
+    def __init__(self, k):
+        if type(k) != int:
+            raise ValueError('TopKPriorityLattice must be a priority queue with capacity k.')
+
+        self.k = k
+        self.payload = []
+        heapq.heapify(self.payload)
+
+    def reveal(self):
+        return self.payload
+
+    def assign(self, payload):
+        if type(payload) != list:
+            raise ValueError('TopKPriorityLattice must be assigned by a list.')
+
+        for pair in self.payload:
+            if type(pair) != tuple or type(payload[0]) != float or type(payload[1]) != bytes:
+                raise ValueError('Each pair in TopKPriorityLattice must be a float-bytes pair.')
+            heapq.heappush(self.payload, pair)
+
+    def merge(self, other):
+        if !isinstance(other, PriorityLattice):
+            raise ValueError('Values merged to TopKPriorityLattice must be a PriorityLattice.')
+
+        heapq.heappush(self.payload, (other.priority, other.payload))
+        if len(self.payload) > self.k:
+            heapq.heappop(self.payload)
+
+        return self.payload
+
+    def serialize(self):
+        res = TopKPriorityValue()
+        for pair in self.payload:
+            res.payload.add(pair)
+        
+        return res, TOPK_PRIORITY
+
