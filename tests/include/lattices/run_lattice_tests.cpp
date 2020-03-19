@@ -22,6 +22,7 @@
 #include "test_max_lattice.hpp"
 #include "test_ordered_set_lattice.hpp"
 #include "test_set_lattice.hpp"
+#include "test_top_k_priority_lattice.hpp"
 
 int main(int argc, char *argv[]) {
   testing::InitGoogleTest(&argc, argv);

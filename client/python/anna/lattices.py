@@ -19,6 +19,8 @@ from anna.anna_pb2 import (
     LWWValue, SetValue, SingleKeyCausalValue, MultiKeyCausalValue, PriorityValue, TopKPriorityValue
 )
 
+from collections import OrderedSet;
+
 
 class Lattice:
     def __init__(self):
@@ -514,8 +516,7 @@ class TopKPriorityLattice(Lattice):
             raise ValueError('TopKPriorityLattice must be a priority queue with capacity k.')
 
         self.k = k
-        self.payload = []
-        heapq.heapify(self.payload)
+        self.payload = OrderedDict(sorted(d.items(), key=lambda t: t[0]))
 
     def reveal(self):
         return self.payload
@@ -524,24 +525,25 @@ class TopKPriorityLattice(Lattice):
         if type(payload) != list:
             raise ValueError('TopKPriorityLattice must be assigned by a list.')
 
-        for pair in self.payload:
-            if type(pair) != tuple or type(payload[0]) != float or type(payload[1]) != bytes:
+        for pair in self.payload.items():
+            if type(pair) != tuple or type(pair[0]) != float or type(pair[1]) != bytes:
                 raise ValueError('Each pair in TopKPriorityLattice must be a float-bytes pair.')
-            heapq.heappush(self.payload, pair)
+            self.payload[pair[0]] = pair[1]
 
     def merge(self, other):
-        if !isinstance(other, PriorityLattice):
+        if type(other) != PriorityLattice:
             raise ValueError('Values merged to TopKPriorityLattice must be a PriorityLattice.')
 
-        heapq.heappush(self.payload, (other.priority, other.payload))
-        if len(self.payload) > self.k:
-            heapq.heappop(self.payload)
+        self.payload[other.priority] = other.payload
+
+        if len(self.payload.items()) > self.k:
+            del self.payload[self.payload.items()[0]]
 
         return self.payload
 
     def serialize(self):
         res = TopKPriorityValue()
-        for pair in self.payload:
+        for pair in self.payload.items():
             res.payload.add(pair)
         
         return res, TOPK_PRIORITY

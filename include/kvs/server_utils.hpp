@@ -43,7 +43,7 @@ typedef KVStore<Key, SingleKeyCausalLattice<SetLattice<string>>>
 typedef KVStore<Key, MultiKeyCausalLattice<SetLattice<string>>>
     MemoryMultiKeyCausalKVS;
 typedef KVStore<Key, PriorityLattice<double, string>> MemoryPriorityKVS;
-typedef KVStore<Key, TopKPriorityLattice<std::priority_queue<pair<double, string>>> MemoryTopKPriorityKVS;
+typedef KVStore<Key, TopKPriorityLattice<double, string>> MemoryTopKPriorityKVS;
 
 // a map that represents which keys should be sent to which IP-port combinations
 typedef map<Address, set<Key>> AddressKeysetMap;
@@ -231,14 +231,14 @@ public:
 
   string get(const Key &key, AnnaError &error, bool delta = false, const string &previous_payload = "") {
     auto val = kvs_->get(key, error);
-    if (val.reveal().value == "") {
+    if (val.reveal().size() == 0) {
       error = AnnaError::KEY_DNE;
     }
     return serialize(val);
   }
 
   unsigned put(const Key &key, const string &serialized) {
-    TopKPriorityLattice<std::priority_queue<pair<double, string>>> val = deserialize_top_k_priority(serialized);
+    TopKPriorityLattice<double, string> val = deserialize_top_k_priority(serialized);
     kvs_->put(key, val);
     return kvs_->size(key);
   }
@@ -839,7 +839,7 @@ public:
 
     PriorityValue original_value;
     if (!original_value.ParseFromFileDescriptor(fd) ||
-        input_value.priority() < original_value.priority()) {
+        input_value.priority() > original_value.priority()) {
       // resize the file to 0
       ftruncate(fd, 0);
       // ftruncate does not change the fd's file offset, so we set it to 0
@@ -863,7 +863,7 @@ public:
   }
 };
 
-class DisTopKPrioritySerializer : public Serializer {
+class DiskTopKPrioritySerializer : public Serializer {
   unsigned tid_;
   string ebs_root_;
 
@@ -873,7 +873,7 @@ class DisTopKPrioritySerializer : public Serializer {
   }
 
 public:
-  DisTopKPrioritySerializer(unsigned tid) : tid_(tid) {
+  DiskTopKPrioritySerializer(unsigned tid) : tid_(tid) {
     YAML::Node conf = YAML::LoadFile("conf/anna-config.yml");
 
     ebs_root_ = conf["ebs"].as<string>();
@@ -902,8 +902,8 @@ public:
   }
 
   unsigned put(const Key &key, const string &serialized) override {
-    PriorityValue input_value;
-    input_value.ParseFromString(serialized);
+    TopKPriorityValue top_k_input_value;
+    top_k_input_value.ParseFromString(serialized);
 
     int fd = open(fname(key).c_str(), O_RDWR | O_CREAT);
     if (fd == -1) {
@@ -911,15 +911,41 @@ public:
       return 0;
     }
 
-    PriorityValue original_value;
-    if (!original_value.ParseFromFileDescriptor(fd) ||
-        input_value.priority() < original_value.priority()) {
+    TopKPriorityValue top_k_original_value;
+    if (!top_k_original_value.ParseFromFileDescriptor(fd)) {
       // resize the file to 0
       ftruncate(fd, 0);
       // ftruncate does not change the fd's file offset, so we set it to 0
       lseek(fd, 0, SEEK_SET);
-      if (!input_value.SerializeToFileDescriptor(fd))
+      if (!top_k_original_value.SerializeToFileDescriptor(fd))
         std::cerr << "Failed to write payload" << std::endl;
+    } else {
+
+      std::set<PriorityValuePair<double, string>> result;
+      for (const auto& pv : top_k_input_value.values()) {
+        result.insert(PriorityValuePair<double, string>(pv.priority(), pv.value()));
+      }
+      for (const auto& pv : top_k_original_value.values()) {
+        result.insert(PriorityValuePair<double, string>(pv.priority(), pv.value()));
+      }
+
+      TopKPriorityLattice<double, string> topKPriorityLattice = TopKPriorityLattice<double, string>(result.size(), result);
+
+      TopKPriorityValue top_k_priority_value;
+
+      for (const auto& p : topKPriorityLattice.reveal()) {
+        PriorityValue* pv = top_k_priority_value.add_values();
+        pv->set_priority(p.priority);
+        pv->set_value(p.value);
+      }
+
+      // resize the file to 0
+      ftruncate(fd, 0);
+      // ftruncate does not change the fd's file offset, so we set it to 0
+      lseek(fd, 0, SEEK_SET);
+      if (!top_k_priority_value.SerializeToFileDescriptor(fd))
+        std::cerr << "Failed to write payload" << std::endl;
+
     }
 
     unsigned pos = lseek(fd, 0, SEEK_CUR);
