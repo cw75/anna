@@ -43,7 +43,7 @@ typedef KVStore<Key, SingleKeyCausalLattice<SetLattice<string>>>
 typedef KVStore<Key, MultiKeyCausalLattice<SetLattice<string>>>
     MemoryMultiKeyCausalKVS;
 typedef KVStore<Key, PriorityLattice<double, string>> MemoryPriorityKVS;
-typedef KVStore<Key, TopKPriorityLattice<double, string>> MemoryTopKPriorityKVS;
+typedef KVStore<Key, TopKPriorityLattice<double, string, kNumShortestPaths>> MemoryTopKPriorityKVS;
 
 // a map that represents which keys should be sent to which IP-port combinations
 typedef map<Address, set<Key>> AddressKeysetMap;
@@ -66,7 +66,7 @@ public:
 
     auto val = kvs_->get(key, error);
 
-    if (val.size().reveal() == 0) {
+    if (val.reveal().value == "") {
       error = AnnaError::KEY_DNE;
     } 
 
@@ -238,7 +238,7 @@ public:
   }
 
   unsigned put(const Key &key, const string &serialized) {
-    TopKPriorityLattice<double, string> val = deserialize_top_k_priority(serialized);
+    TopKPriorityLattice<double, string, kNumShortestPaths> val = deserialize_top_k_priority(serialized);
     kvs_->put(key, val);
     return kvs_->size(key);
   }
@@ -923,13 +923,13 @@ public:
 
       std::set<PriorityValuePair<double, string>> result;
       for (const auto& pv : top_k_input_value.values()) {
-        result.insert(PriorityValuePair<double, string>(pv.priority(), pv.value()));
+        result.insert(std::move(PriorityValuePair<double, string>(std::move(pv.priority()), std::move(pv.value()))));
       }
       for (const auto& pv : top_k_original_value.values()) {
-        result.insert(PriorityValuePair<double, string>(pv.priority(), pv.value()));
+        result.insert(std::move(PriorityValuePair<double, string>(std::move(pv.priority()), std::move(pv.value()))));
       }
 
-      TopKPriorityLattice<double, string> topKPriorityLattice = TopKPriorityLattice<double, string>(result.size(), result);
+      TopKPriorityLattice<double, string, kNumShortestPaths> topKPriorityLattice = TopKPriorityLattice<double, string, kNumShortestPaths>(result);
 
       TopKPriorityValue top_k_priority_value;
 

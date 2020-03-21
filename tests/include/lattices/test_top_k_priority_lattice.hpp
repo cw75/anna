@@ -22,7 +22,7 @@
 
 class TopKPriorityLatticeTest : public ::testing::Test {
 protected:
-  TopKPriorityLattice<double, string> *tkpl;
+  TopKPriorityLattice<double, string, 2> *tkpl;
 
   PriorityValuePair<double, string> p1 = PriorityValuePair<double, string>(1.1, "1.1");
   PriorityValuePair<double, string> p2 = PriorityValuePair<double, string>(2.2, "2.2");
@@ -37,7 +37,7 @@ protected:
   std::set<PriorityValuePair<double, string>> set12 = {p2, p4};
   std::set<PriorityValuePair<double, string>> set123 = {p4, p6};
 
-  TopKPriorityLatticeTest() { tkpl = new TopKPriorityLattice<double, string>(2); }
+  TopKPriorityLatticeTest() { tkpl = new TopKPriorityLattice<double, string, 2>(); }
   virtual ~TopKPriorityLatticeTest() { delete tkpl; }
 };
 
@@ -50,13 +50,13 @@ TEST_F(TopKPriorityLatticeTest, Assign) {
 
 TEST_F(TopKPriorityLatticeTest, MergeByLattice) {
   EXPECT_EQ(0, tkpl->size().reveal());
-  tkpl->merge(TopKPriorityLattice<double, string>(2, set1));
+  tkpl->merge(TopKPriorityLattice<double, string, 2>(set1));
   EXPECT_EQ(2, tkpl->size().reveal());
   EXPECT_EQ(set1, tkpl->reveal());
-  tkpl->merge(TopKPriorityLattice<double, string>(2, set2));
+  tkpl->merge(TopKPriorityLattice<double, string, 2>(set2));
   EXPECT_EQ(2, tkpl->size().reveal());
   EXPECT_EQ(set12, tkpl->reveal());
-  tkpl->merge(TopKPriorityLattice<double, string>(2, set3));
+  tkpl->merge(TopKPriorityLattice<double, string, 2>(set3));
   EXPECT_EQ(2, tkpl->size().reveal());
   EXPECT_EQ(set123, tkpl->reveal());
 }
