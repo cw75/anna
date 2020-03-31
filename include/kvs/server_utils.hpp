@@ -134,9 +134,6 @@ public:
 
   string get(const Key &key, AnnaError &error, bool delta = false, const string &previous_payload = "") {
     auto val = kvs_->get(key, error);
-    if (val.size().reveal() == 0) {
-      error = AnnaError::KEY_DNE;
-    }
     return serialize(val);
   }
 
@@ -456,11 +453,7 @@ public:
       std::cerr << "Failed to parse payload." << std::endl;
       error = AnnaError::KEY_DNE;
     } else {
-      if (value.values_size() == 0) {
-        error = AnnaError::KEY_DNE;
-      } else {
-        value.SerializeToString(&res);
-      }
+      value.SerializeToString(&res);
     }
     return res;
   }
