@@ -19,7 +19,6 @@ from anna.anna_pb2 import (
     LWWValue, SetValue, SingleKeyCausalValue, MultiKeyCausalValue, PriorityValue, TopKPriorityValue
 )
 
-from collections import OrderedSet;
 from collections import OrderedDict;
 
 
