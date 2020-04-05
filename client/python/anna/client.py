@@ -32,7 +32,7 @@ from anna.zmq_util import (
     SocketCache
 )
 
-from anna.lattice import (
+from anna.lattices import (
     LWWPairLattice,
     SetLattice
 )
