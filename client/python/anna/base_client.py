@@ -246,7 +246,6 @@ class BaseAnnaClient():
         tuples = []
 
         for key in keys:
-            # TODO: is tup included in req?
             tup = req.tuples.add()
             tuples.append(tup)
             tup.key = key

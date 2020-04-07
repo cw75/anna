@@ -32,15 +32,13 @@ from anna.zmq_util import (
     SocketCache
 )
 
-from anna.lattices import (
-    LWWPairLattice,
-    SetLattice
-)
+from anna.lattices import *
 
-from anna.anna_pb2 import (
-    # Anna's lattice types as an enum
-    LWW, SET)
-
+# Anna's lattice types as an enum
+from anna.anna_pb2 import (# Anna's lattice types as an enum
+    LWW, SET, ORDERED_SET, SINGLE_CAUSAL, MULTI_CAUSAL, PRIORITY, TOPK_PRIORITY,
+    # Serialized representations of Anna's lattices
+    LWWValue, SetValue, SingleKeyCausalValue, MultiKeyCausalValue, PriorityValue, TopKPriorityValue)
 
 
 class AnnaTcpClient(BaseAnnaClient):
@@ -151,7 +149,11 @@ class AnnaTcpClient(BaseAnnaClient):
                 if worker_addresses[key]:
                     send_sock = self.pusher_cache.get(worker_addresses[key])
 
-                    req, _ = self._prepare_delta_data_request([key], self._serialize(self.cache[key])[0])
+                    if self.cache[key].isinstance(LWWPairLattice):
+                        req, _ = self._prepare_delta_data_request([key], self._serialize(LWWPairLattice(self.cache[key].ts, "")))
+                    else:
+                        req, _ = self._prepare_delta_data_request([key], self._serialize(self.cache[key]))
+
                     req.type = GET
 
                     send_request(req, send_sock)
@@ -173,17 +175,21 @@ class AnnaTcpClient(BaseAnnaClient):
 
             for response in responses:
                 for tup in response.tuples:
-                    if tup.invalidate:
-                        self._invalidate_cache(tup.key)
-
-                    lattice_value = self._deserialize(tup)
-
-                    if (lattice_value.identical):
-                        lattice_value = self.cache[key]
-
                     if tup.error == NO_ERROR:
-                        kv_pairs[tup.key] = lattice_value
-                        cache[tup.key] = lattice_value
+                        if tup.invalidate:
+                            self._invalidate_cache(tup.key)
+
+                        if (tup.identical):
+                            kv_pairs[tup.key] = self.cache[key]
+                        else:
+                            lattice_value = self._deserialize(tup)
+                            kv_pairs[tup.key] = lattice_value
+                            cache[tup.key] = lattice_value
+
+
+                            # cache[LWW] = {key: value}
+                            # cache[SET] = {key: value}
+
 
             return kv_pairs
 
