@@ -187,10 +187,6 @@ class AnnaTcpClient(BaseAnnaClient):
                             cache[tup.key] = lattice_value
 
 
-                            # cache[LWW] = {key: value}
-                            # cache[SET] = {key: value}
-
-
             return kv_pairs
 
 

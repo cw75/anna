@@ -73,7 +73,7 @@ public:
     if (!delta) {
       return serialize(val);
     } else {
-      if (val.reveal().timestamp != deserialize_lww(previous_payload).reveal()) {
+      if (val.reveal().timestamp != deserialize_lww(previous_payload).reveal().timestamp) {
         return serialize(val);
       } else {
         return kDeltaRequestIdentical;
