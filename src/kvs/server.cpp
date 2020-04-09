@@ -103,8 +103,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
   // ZMQ socket for asking kops server for IP addrs of functional nodes.
   zmq::socket_t func_nodes_requester(context, ZMQ_REQ);
   if (management_ip != "NULL") {
-    func_nodes_requester.setsockopt(ZMQ_SNDTIMEO, 1000); // 1s
-    func_nodes_requester.setsockopt(ZMQ_RCVTIMEO, 1000); // 1s
+    // func_nodes_requester.setsockopt(ZMQ_SNDTIMEO, 1000); // 1s
+    // func_nodes_requester.setsockopt(ZMQ_RCVTIMEO, 1000); // 1s
     func_nodes_requester.connect(get_func_nodes_req_address(management_ip));
   }
 
