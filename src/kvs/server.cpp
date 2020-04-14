@@ -624,11 +624,20 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
       // Only do this if a management_ip is set -- i.e., we are not running in
       // local mode.
       if (management_ip != "NULL") {
+        auto send_time = std::chrono::system_clock::now();
+        log->info("sending to management.");
         kZmqUtil->send_string("", &func_nodes_requester);
         // Get the response.
         StringSet func_nodes;
         func_nodes.ParseFromString(
             kZmqUtil->recv_string(&func_nodes_requester));
+        auto receive_time = std::chrono::system_clock::now();
+
+        auto wait_time = std::chrono::duration_cast<std::chrono::seconds>(
+                            receive_time - send_time)
+                            .count();
+        log->info("wait time is {}.", std::to_string(wait_time));
+
 
         // Update extant_caches with the response.
         set<Address> deleted_caches = std::move(extant_caches);
