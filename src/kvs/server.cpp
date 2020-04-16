@@ -730,10 +730,15 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
 }
 
 int main(int argc, char *argv[]) {
+  string log_file = "log_master.txt";
+  string log_name = "server_log_master";
+  auto log = spdlog::basic_logger_mt(log_name, log_file, true);
+  log->flush_on(spdlog::level::info);
   if (argc != 1) {
     std::cerr << "Usage: " << argv[0] << std::endl;
     return 1;
   }
+  log->info("reached here");
 
   // populate metadata
   char *stype = getenv("SERVER_TYPE");
