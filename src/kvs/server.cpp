@@ -424,6 +424,7 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
 
     // Receive management node response.
     if (pollitems[8].revents & ZMQ_POLLIN) {
+      log->info("received response from management node");
       auto work_start = std::chrono::system_clock::now();
 
       string serialized = kZmqUtil->recv_string(&management_node_response_puller);
