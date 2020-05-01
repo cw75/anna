@@ -1,6 +1,6 @@
 ebs: /ebs
 capacities: # in GB
-  memory-cap: 45 
+  memory-cap: 45
   ebs-cap: 256
 threads:
   memory: 4
@@ -13,6 +13,6 @@ replication:
   minimum: 1
   local: 1
 policy:
-  elasticity: true
-  selective-rep: true
+  elasticity: false
+  selective-rep: false
   tiering: false
