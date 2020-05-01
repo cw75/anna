@@ -18,7 +18,9 @@ from anna.anna_pb2 import (
     # Serialized representations of Anna's lattices
     LWWValue, SetValue, SingleKeyCausalValue, MultiKeyCausalValue, PriorityValue, TopKPriorityValue
 )
-from sortedcontainers import SortedDict
+
+from collections import OrderedDict;
+
 
 class Lattice:
     def __init__(self):
@@ -509,18 +511,12 @@ class PriorityLattice(Lattice):
         return res, PRIORITY
 
 class TopKPriorityLattice(Lattice):
-    def __init__(self, k, k_v=None):
-        if type(k) != int or k < 0 or not isinstance(k_v, dict):
-            raise ValueError('TopKPriorityLattice must be a priority queue with a positive integer capacity k.')
+    def __init__(self, k):
+        if type(k) != int:
+            raise ValueError('TopKPriorityLattice must be a priority queue with capacity k.')
 
         self.k = k
-        if k_v:
-            self.payload = SortedDict(k_v.items()) 
-        else:
-            self.payload = SortedDict()
-
-        while len(self.payload) > self.k:
-            del self.payload[self.payload.keys()[-1]]
+        self.payload = OrderedDict(sorted(d.items(), key=lambda t: t[0]))
 
     def reveal(self):
         return self.payload
@@ -541,7 +537,7 @@ class TopKPriorityLattice(Lattice):
         self.payload[other.priority] = other.payload
 
         if len(self.payload.items()) > self.k:
-            del self.payload[self.payload.keys()[-1]]
+            del self.payload[self.payload.items()[0]]
 
         return self.payload
 
@@ -551,3 +547,4 @@ class TopKPriorityLattice(Lattice):
             res.payload.add(pair)
         
         return res, TOPK_PRIORITY
+

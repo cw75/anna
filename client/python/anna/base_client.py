@@ -14,9 +14,9 @@
 
 from anna.anna_pb2 import (
     # Protobuf enum lattices types
-    LWW, SET, ORDERED_SET, SINGLE_CAUSAL, MULTI_CAUSAL, PRIORITY, TOPK_PRIORITY,
+    LWW, SET, ORDERED_SET, SINGLE_CAUSAL, MULTI_CAUSAL, PRIORITY,
     # Serialized lattice protobuf representations
-    LWWValue, SetValue, SingleKeyCausalValue, MultiKeyCausalValue, PriorityValue, TopKPriorityValue, 
+    LWWValue, SetValue, SingleKeyCausalValue, MultiKeyCausalValue, PriorityValue,
     KeyRequest
 )
 from anna.causal_pb2 import CausalTuple
@@ -30,10 +30,9 @@ from anna.lattices import (
     PriorityLattice,
     SetLattice,
     SingleKeyCausalLattice,
-    TopKPriorityLattice,
     VectorClock
 )
-from sortedcontainers import SortedDict
+
 
 class BaseAnnaClient():
     def __init__(self):
@@ -42,7 +41,9 @@ class BaseAnnaClient():
     def get(self, keys):
         '''
         Retrieves a key from the key value store.
+
         keys: The names of the keys being retrieved.
+
         returns: A Lattice containing the server's response
         '''
         raise NotImplementedError
@@ -51,7 +52,9 @@ class BaseAnnaClient():
         '''
         Retrieves all versions of the keys from the KVS; there may be multiple
         versions because the KVS is eventually consistent.
+
         keys: The names of the keys being retrieved
+
         returns: A list of Lattices with all the key versions returned by the
         KVS
         '''
@@ -60,8 +63,10 @@ class BaseAnnaClient():
     def put(self, key, value):
         '''
         Puts a new key into the KVS.
+
         key: The name of the key being put
         value: A lattice with the data corresponding to this key
+
         returns: True if the server responded without an error, and False
         otherwise or if the server could not be reached
         '''
@@ -71,8 +76,10 @@ class BaseAnnaClient():
         '''
         Puts a new key into the key value store and waits for acknowledgement
         from all key replicas.
+
         key: The name of the key being put
         value: A Lattice with the data corresponding to this key
+
         returns: True if all replicas acknowledged the request or False if a
         replica returned an error or could not be reached
         '''
@@ -185,22 +192,11 @@ class BaseAnnaClient():
             value = SetLattice(values)
 
             return MultiKeyCausalLattice(vc, dependencies, value)
-
         elif tup.lattice_type == PRIORITY:
             val = PriorityValue()
             val.ParseFromString(tup.payload)
 
             return PriorityLattice(val.priority, val.value)
-
-        elif tup.lattice_type == TOPK_PRIORITY:
-            val = TopKPriorityValue()
-            val.ParseFromString(tup.payload)
-
-            ordered_dict = SortedDict()
-            for v in val.values:
-                ordered_dict[v.priority] = v.value
-            return TopKPriorityLattice(len(ordered_dict), ordered_dict)
-
         else:
             raise ValueError('Unsupported type cannot be serialized: ' +
                              str(tup.lattice_type))

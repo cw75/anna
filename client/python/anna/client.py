@@ -101,10 +101,8 @@ class AnnaTcpClient(BaseAnnaClient):
             kv_pairs[key] = None
 
         request_ids = []
-        # print("66666", worker_addresses, "7777")
         for key in worker_addresses:
             if worker_addresses[key]:
-
                 send_sock = self.pusher_cache.get(worker_addresses[key])
 
                 req, _ = self._prepare_data_request([key])
@@ -116,7 +114,7 @@ class AnnaTcpClient(BaseAnnaClient):
         # Wait for all responses to return.
         responses = recv_response(request_ids, self.response_puller,
                                   KeyResponse)
-        # print("888", responses, "999") # debug here DNE
+
         for response in responses:
             for tup in response.tuples:
                 if tup.invalidate:
@@ -124,7 +122,6 @@ class AnnaTcpClient(BaseAnnaClient):
 
                 if tup.error == NO_ERROR:
                     kv_pairs[tup.key] = self._deserialize(tup)
-                    # print('No Errorrrrrrrrr2', kv_pairs, "No Erroooooor2")
 
         return kv_pairs
 
@@ -310,9 +307,7 @@ class AnnaTcpClient(BaseAnnaClient):
         if key not in self.address_cache:
             port = random.choice(self.elb_ports)
             addresses = self._query_routing(key, port)
-
             self.address_cache[key] = addresses
-            # print("--", self.address_cache, "==")
 
         if len(self.address_cache[key]) == 0:
             return None
