@@ -82,11 +82,19 @@ void user_request_handler(
 
             auto res = process_get(key, serializers[stored_key_map[key].type_], delta, previous_payload);
             tp->set_lattice_type(stored_key_map[key].type_);
+            auto type = stored_key_map[key].type_;
             if (res.first == kDeltaRequestIdentical) {
               tp->set_identical(true);
  
             } else {
               tp->set_payload(res.first);
+              if (type != TOPK_PRIORITY) {
+                log->info(type);
+                log->info("not TopK");
+              } else {
+                log->info("length = "  deserialize_top_k_priority(res.first).payload.__len__());
+              }
+              
             }
             tp->set_error(res.second);
 
@@ -108,7 +116,7 @@ void user_request_handler(
 
             local_changeset.insert(key);
             tp->set_lattice_type(tuple.lattice_type());
-            log->info("successully put 233");
+            log->info("successully put");
           }
         } else {
           log->error("Unknown request type {} in user request handler.",
