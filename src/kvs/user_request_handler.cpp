@@ -92,7 +92,8 @@ void user_request_handler(
                 log->info(type);
                 log->info("not TopK");
               } else {
-                log->info("length = "  deserialize_top_k_priority(res.first).payload.__len__());
+                log->info("length = "  deserialize_top_k_priority(res.first).reveal().size());
+
               }
               
             }
