@@ -436,9 +436,9 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
 
       string serialized =
           kZmqUtil->recv_string(&management_node_response_puller);
-      management_node_response_handler(
-          serialized, extant_caches, cache_ip_to_keys, key_to_cache_ips,
-          global_hash_rings, local_hash_rings, pushers, wt, rid);
+      //management_node_response_handler(
+      //    serialized, extant_caches, cache_ip_to_keys, key_to_cache_ips,
+      //    global_hash_rings, local_hash_rings, pushers, wt, rid);
 
       auto time_elapsed = std::chrono::duration_cast<std::chrono::microseconds>(
                               std::chrono::system_clock::now() - work_start)
