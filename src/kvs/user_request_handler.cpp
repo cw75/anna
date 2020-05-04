@@ -79,7 +79,7 @@ void user_request_handler(
 
             tp->set_error(AnnaError::KEY_DNE); 
           } else {
-
+            log->info("key name is {}", key);
             auto res = process_get(key, serializers[stored_key_map[key].type_], delta, previous_payload);
             tp->set_lattice_type(stored_key_map[key].type_);
             auto type = stored_key_map[key].type_;
@@ -88,12 +88,10 @@ void user_request_handler(
  
             } else {
               tp->set_payload(res.first);
-              if (type != TOPK_PRIORITY) {
-                log->info("type = ", type, " not TopK");
-                log->info("key-> ", key, " <-key");
+              if (type == LatticeType::TOPK_PRIORITY) {
+                log->info("length = {}",  deserialize_top_k_priority(res.first).reveal().size());
               } else {
-                log->info("length = ",  deserialize_top_k_priority(res.first).reveal().size());
-
+                log->info("not a topk lattice");
               }
               
             }

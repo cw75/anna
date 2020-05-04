@@ -134,6 +134,7 @@ void replication_response_handler(
           tp->set_key(key);
 
           if (request.type_ == RequestType::GET) {
+            log->info("key name is {}", key);
             if (stored_key_map.find(key) == stored_key_map.end() ||
                 stored_key_map[key].type_ == LatticeType::NONE) {
               tp->set_error(AnnaError::KEY_DNE);
@@ -143,6 +144,12 @@ void replication_response_handler(
               tp->set_lattice_type(stored_key_map[key].type_);
               tp->set_payload(res.first);
               tp->set_error(res.second);
+              auto type = stored_key_map[key].type_;
+              if (type == LatticeType::TOPK_PRIORITY) {
+                log->info("length = {}",  deserialize_top_k_priority(res.first).reveal().size());
+              } else {
+                log->info("not a topk lattice");
+              }
             }
           } else {
             if (request.lattice_type_ == LatticeType::NONE) {
