@@ -42,6 +42,9 @@ void run(unsigned thread_id, Address ip, vector<Address> monitoring_ips) {
   // prepare the zmq context
   zmq::context_t context(1);
   zmq_ctx_set(&context, ZMQ_MAX_SOCKETS, 10000);
+  int max_sockets = zmq_ctx_get(&context, ZMQ_MAX_SOCKETS);
+  std::cout << "max socket num is " + std::to_string(max_sockets) + "\n";
+  assert (max_sockets == 10000);
   SocketCache pushers(&context, ZMQ_PUSH);
   map<Key, KeyReplication> key_replication_map;
 
