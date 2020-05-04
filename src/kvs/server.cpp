@@ -63,7 +63,7 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
 
   // prepare the zmq context
   zmq::context_t context(1);
-  auto res = zmq_ctx_set(&context, ZMQ_MAX_SOCKETS, 10000);
+  auto res = zmq_ctx_set((void*)&context, ZMQ_MAX_SOCKETS, 10000);
   if (res == 0) {
     std::cout << "successfully set\n";
   } else {
