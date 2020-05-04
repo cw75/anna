@@ -41,6 +41,7 @@ void run(unsigned thread_id, Address ip, vector<Address> monitoring_ips) {
 
   // prepare the zmq context
   zmq::context_t context(1);
+  zmq_ctx_set(&context, ZMQ_MAX_SOCKETS, 10000);
   SocketCache pushers(&context, ZMQ_PUSH);
   map<Key, KeyReplication> key_replication_map;
 
