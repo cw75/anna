@@ -62,6 +62,15 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
   unsigned rid = 0;
 
   // prepare the zmq context
+  void *dummy = zmq_ctx_new();
+  auto result = zmq_ctx_set(dummy, ZMQ_MAX_SOCKETS, 10000);
+  if (result == 0) {
+    std::cout << "successfully set\n";
+  } else {
+    std::cout << "E: socket error number " << errno << " (" << zmq_strerror(errno) << ")" << std::endl;
+  }
+
+
   zmq::context_t context(1);
   auto res = zmq_ctx_set((void*)&context, ZMQ_MAX_SOCKETS, 10000);
   if (res == 0) {
