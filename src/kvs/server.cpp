@@ -75,14 +75,15 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
   //zmq::context_t &context = *(static_cast<zmq::context_t *>(ctx_ptr));
   zmq::context_t context(1);
   //void* _s = &context;
-  auto res = context.set(zmq::ctxopt::max_sockets, 10000);
+  //auto res = context.set(zmq::ctxopt::max_sockets, 10000);
+  auto res = context.setctxopt(ZMQ_MAX_SOCKETS, 10000);
   //auto res = zmq_ctx_set(ctx_ptr, ZMQ_MAX_SOCKETS, 10000);
   if (res == 0) {
     std::cout << "successfully set\n";
   } else {
     std::cout << "E: socket error number " << errno << " (" << zmq_strerror(errno) << ")" << std::endl;
   }
-  int max_sockets = context.get(zmq::ctxopt::max_sockets);
+  int max_sockets = context.getctxopt(ZMQ_MAX_SOCKETS);
   std::cout << "max socket num is " + std::to_string(max_sockets) + "\n";
   assert (max_sockets == 10000);
   SocketCache pushers(&context, ZMQ_PUSH);
