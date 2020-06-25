@@ -403,8 +403,8 @@ class SingleKeyCausalLattice(Lattice):
         self.vector_clock.serialize(skcv.vector_clock)
 
         # Add the value(s) stored by this lattice.
-        for v in self.value:
-            skcv.values.add(v)
+        for v in self.value.reveal():
+            skcv.values.append(v)
 
         return skcv, SINGLE_CAUSAL
 
