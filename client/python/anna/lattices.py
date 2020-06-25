@@ -312,8 +312,8 @@ class MapLattice(Lattice):
 
 class VectorClock(MapLattice):
     def __init__(self, mp, deserialize=False):
-        if type(mp) != dict:
-            raise ValueError('VectorClock must be a dict, not ' +  {type(mp)} + '.')
+        #if type(mp) != dict:
+        #    raise ValueError('VectorClock must be a dict, not ' +  type(mp) + '.')
 
         if deserialize:
             self.mp = VectorClock._deserialize(mp)
