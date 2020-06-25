@@ -163,7 +163,7 @@ class BaseAnnaClient():
             for v in val.values:
                 values.add(v)
 
-            return SingleKeyCasaulLattice(vc, SetLattice(values))
+            return SingleKeyCausalLattice(vc, SetLattice(values))
 
         elif tup.lattice_type == MULTI_CAUSAL:
             # Deserialize multi-key causal lattices
