@@ -13,6 +13,6 @@ replication:
   minimum: 1
   local: 1
 policy:
-  elasticity: true
-  selective-rep: true
+  elasticity: false
+  selective-rep: false
   tiering: false

@@ -14,9 +14,9 @@
 
 from anna.anna_pb2 import (
     # Protobuf enum lattices types
-    LWW, SET, ORDERED_SET, SINGLE_CAUSAL, MULTI_CAUSAL, PRIORITY,
+    LWW, SET, ORDERED_SET, SINGLE_CAUSAL, MULTI_CAUSAL, PRIORITY, TOPK_PRIORITY,
     # Serialized lattice protobuf representations
-    LWWValue, SetValue, SingleKeyCausalValue, MultiKeyCausalValue, PriorityValue,
+    LWWValue, SetValue, SingleKeyCausalValue, MultiKeyCausalValue, PriorityValue, TopKPriorityValue,
     KeyRequest
 )
 from anna.causal_pb2 import CausalTuple
@@ -28,11 +28,13 @@ from anna.lattices import (
     MultiKeyCausalLattice,
     OrderedSetLattice,
     PriorityLattice,
+    TopKPriorityLattice,
     SetLattice,
     SingleKeyCausalLattice,
     VectorClock
 )
 
+from sortedcontainers import SortedDict
 
 class BaseAnnaClient():
     def __init__(self):
@@ -197,6 +199,16 @@ class BaseAnnaClient():
             val.ParseFromString(tup.payload)
 
             return PriorityLattice(val.priority, val.value)
+
+        elif tup.lattice_type == TOPK_PRIORITY:
+            val = TopKPriorityValue()
+            val.ParseFromString(tup.payload)
+
+            ordered_dict = SortedDict()
+            for v in val.values:
+                ordered_dict[v.priority] = v.value
+            return TopKPriorityLattice(len(ordered_dict), ordered_dict)
+            
         else:
             raise ValueError('Unsupported type cannot be serialized: ' +
                              str(tup.lattice_type))
