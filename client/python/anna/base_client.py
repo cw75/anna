@@ -160,7 +160,7 @@ class BaseAnnaClient():
 
             # Create a SetLattice with the value(s) stored by this lattice.
             values = set()
-            for v in val.values():
+            for v in val.values:
                 values.add(v)
 
             return SingleKeyCasaulLattice(vc, SetLattice(values))
