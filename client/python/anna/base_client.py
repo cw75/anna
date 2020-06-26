@@ -19,7 +19,7 @@ from anna.anna_pb2 import (
     LWWValue, SetValue, SingleKeyCausalValue, MultiKeyCausalValue, PriorityValue,
     KeyRequest
 )
-from anna.causal_pb2 import CausalTuple
+import anna.causal_pb2
 from anna.lattices import (
     Lattice,
     LWWPairLattice,
@@ -94,7 +94,7 @@ class BaseAnnaClient():
     # type of the KeyTuple.
     def _deserialize(self, tup):
         print(type(tup))
-        if isinstance(tup, causal_pb2.CausalTuple):
+        if isinstance(tup, anna.causal_pb2.CausalTuple):
             # Deserialize multi-key causal lattices
             val = MultiKeyCausalValue()
             val.ParseFromString(tup.payload)
