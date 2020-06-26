@@ -94,7 +94,7 @@ class BaseAnnaClient():
     # type of the KeyTuple.
     def _deserialize(self, tup):
         print(type(tup))
-        if isinstance(tup, CausalTuple):
+        if isinstance(tup, causal_pb2.CausalTuple):
             # Deserialize multi-key causal lattices
             val = MultiKeyCausalValue()
             val.ParseFromString(tup.payload)
