@@ -296,7 +296,7 @@ class MapLattice(Lattice):
             raise ValueError('Cannot merge MapLattice with type ' +
                              str(type(other)) + '.')
 
-        for key in other.mp.keys:
+        for key in other.mp.keys():
             if key in self.mp:
                 if (not isinstance(self.mp[key], Lattice) or not
                         isinstance(other.mp[key], Lattice)):
