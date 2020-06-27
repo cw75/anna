@@ -93,7 +93,6 @@ class BaseAnnaClient():
     # input and returns either a lattice data structure corresponding to the
     # type of the KeyTuple.
     def _deserialize(self, tup):
-        print(type(tup))
         if type(tup).__name__ == 'CausalTuple':
             # Deserialize multi-key causal lattices
             val = MultiKeyCausalValue()
