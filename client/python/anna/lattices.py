@@ -292,7 +292,7 @@ class MapLattice(Lattice):
         self.mp = mp
 
     def merge(self, other):
-        if type(other) != MapLattice:
+        if not isinstance(other, MapLattice):
             raise ValueError('Cannot merge MapLattice with type ' +
                              str(type(other)) + '.')
 
