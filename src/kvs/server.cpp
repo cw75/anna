@@ -301,7 +301,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
   auto report_end = std::chrono::system_clock::now();
 
   unsigned long long working_time = 0;
-  unsigned long long working_time_map[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  map<string, unsigned long long> working_time_map;
+  //unsigned long long working_time_map[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   unsigned epoch = 0;
 
   // enter event loop
@@ -322,7 +323,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map[0] += time_elapsed;
+      working_time_map['node_join_handler'] += time_elapsed;
+      //working_time_map[0] += time_elapsed;
     }
 
     if (pollitems[1].revents & ZMQ_POLLIN) {
@@ -336,7 +338,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map[1] += time_elapsed;
+      working_time_map['node_depart_handler'] += time_elapsed;
+      //working_time_map[1] += time_elapsed;
     }
 
     if (pollitems[2].revents & ZMQ_POLLIN) {
@@ -364,7 +367,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               .count();
 
       working_time += time_elapsed;
-      working_time_map[3] += time_elapsed;
+      working_time_map['user_request_handler'] += time_elapsed;
+      //working_time_map[3] += time_elapsed;
     }
 
     if (pollitems[4].revents & ZMQ_POLLIN) {
@@ -379,7 +383,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map[4] += time_elapsed;
+      working_time_map['gossip_handler'] += time_elapsed;
+      //working_time_map[4] += time_elapsed;
     }
 
     // receives replication factor response
@@ -397,7 +402,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map[5] += time_elapsed;
+      working_time_map['replication_response_handler'] += time_elapsed;
+      //working_time_map[5] += time_elapsed;
     }
 
     // receive replication factor change
@@ -414,7 +420,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map[6] += time_elapsed;
+      working_time_map['replication_change_handler'] += time_elapsed;
+      //working_time_map[6] += time_elapsed;
     }
 
     // Receive cache IP lookup response.
@@ -428,7 +435,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map[7] += time_elapsed;
+      working_time_map['cache_ip_response_handler'] += time_elapsed;
+      //working_time_map[7] += time_elapsed;
     }
 
     // Receive management node response.
@@ -445,7 +453,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map[8] += time_elapsed;
+      working_time_map['management_node_response_handler'] += time_elapsed;
+      //working_time_map[8] += time_elapsed;
     }
 
     // gossip updates to other threads
@@ -496,7 +505,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               .count();
 
       working_time += time_elapsed;
-      working_time_map[9] += time_elapsed;
+      working_time_map['gossip'] += time_elapsed;
+      //working_time_map[9] += time_elapsed;
     }
 
     // Collect and store internal statistics,
@@ -520,13 +530,12 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
         consumption += key_pair.second.size_;
       }
 
-      int index = 0;
-      for (const unsigned long long &time : working_time_map) {
+      for (const auto& pair : working_time_map) {
         // cast to microsecond
-        double event_occupancy = (double)time / ((double)duration * 1000000);
+        double event_occupancy = (double)pair.second / ((double)duration * 1000000);
 
         if (event_occupancy > 0.02) {
-          log->info("Event {} occupancy is {}.", std::to_string(index++),
+          log->info("Event {} occupancy is {}.", pair.first,
                     std::to_string(event_occupancy));
         }
       }
@@ -655,7 +664,8 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
       // reset stats tracked in memory
       working_time = 0;
       access_count = 0;
-      memset(working_time_map, 0, sizeof(working_time_map));
+      working_time_map.clear();
+      //memset(working_time_map, 0, sizeof(working_time_map));
     }
 
     // redistribute data after node joins
