@@ -323,7 +323,7 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map['node_join_handler'] += time_elapsed;
+      working_time_map["node_join_handler"] += time_elapsed;
       //working_time_map[0] += time_elapsed;
     }
 
@@ -338,7 +338,7 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map['node_depart_handler'] += time_elapsed;
+      working_time_map["node_depart_handler"] += time_elapsed;
       //working_time_map[1] += time_elapsed;
     }
 
@@ -367,7 +367,7 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               .count();
 
       working_time += time_elapsed;
-      working_time_map['user_request_handler'] += time_elapsed;
+      working_time_map["user_request_handler"] += time_elapsed;
       //working_time_map[3] += time_elapsed;
     }
 
@@ -383,7 +383,7 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map['gossip_handler'] += time_elapsed;
+      working_time_map["gossip_handler"] += time_elapsed;
       //working_time_map[4] += time_elapsed;
     }
 
@@ -402,7 +402,7 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map['replication_response_handler'] += time_elapsed;
+      working_time_map["replication_response_handler"] += time_elapsed;
       //working_time_map[5] += time_elapsed;
     }
 
@@ -420,7 +420,7 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map['replication_change_handler'] += time_elapsed;
+      working_time_map["replication_change_handler"] += time_elapsed;
       //working_time_map[6] += time_elapsed;
     }
 
@@ -435,7 +435,7 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map['cache_ip_response_handler'] += time_elapsed;
+      working_time_map["cache_ip_response_handler"] += time_elapsed;
       //working_time_map[7] += time_elapsed;
     }
 
@@ -453,7 +453,7 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               std::chrono::system_clock::now() - work_start)
                               .count();
       working_time += time_elapsed;
-      working_time_map['management_node_response_handler'] += time_elapsed;
+      working_time_map["management_node_response_handler"] += time_elapsed;
       //working_time_map[8] += time_elapsed;
     }
 
@@ -505,7 +505,7 @@ void run(unsigned thread_id, Address public_ip, Address private_ip,
                               .count();
 
       working_time += time_elapsed;
-      working_time_map['gossip'] += time_elapsed;
+      working_time_map["gossip"] += time_elapsed;
       //working_time_map[9] += time_elapsed;
     }
 
