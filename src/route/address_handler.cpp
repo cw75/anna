@@ -49,6 +49,12 @@ void address_handler(logger log, string &serialized, SocketCache &pushers,
       if (key.length() >
           0) { // Only run this code is the key is a valid string.
         // Otherwise, an empty response will be sent.
+
+        // If key not in replication map, initialize to default value
+        if (key_replication_map.find(key) == key_replication_map.end()) {
+          init_replication(key_replication_map, key);
+        }
+
         for (const Tier &tier : kAllTiers) {
           threads = kHashRingUtil->get_responsible_threads(
               rt.replication_response_connect_address(), key, is_metadata(key),
