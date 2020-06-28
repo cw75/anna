@@ -51,7 +51,7 @@ void address_handler(logger log, string &serialized, SocketCache &pushers,
         // Otherwise, an empty response will be sent.
 
         // If key not in replication map, initialize to default value
-        if (key_replication_map.find(key) == key_replication_map.end()) {
+        if (key_replication_map.find(key) == key_replication_map.end() && !is_metadata(key)) {
           init_replication(key_replication_map, key);
         }
 
