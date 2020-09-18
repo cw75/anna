@@ -37,6 +37,7 @@ void address_handler(logger log, string &serialized, SocketCache &pushers,
     addr_response.set_error(AnnaError::NO_SERVERS);
 
     for (const Key &key : addr_request.keys()) {
+      log->info("key is {}", key);
       KeyAddressResponse_KeyAddress *tp = addr_response.add_addresses();
       tp->set_key(key);
     }
